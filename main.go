@@ -25,7 +25,12 @@ func main() {
 				log.Fatal(err)
 			}
 			method, uri, version := parseRequestLine(string(requestLine))
-			fmt.Printf("method=%s, uri=%s, version=%s", method, uri, version)
+			fmt.Printf("method=%s, uri=%s, version=%s\n", method, uri, version)
+			headers, err := reader.ReadHeaders()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("headers=%+v\n", headers)
 			c.Close()
 		}(conn)
 	}

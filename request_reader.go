@@ -42,3 +42,18 @@ func (r *requestReader) ReadLine() ([]byte, error) {
 	}
 	return line, nil
 }
+
+func (r requestReader) ReadHeaders() (map[string][]string, error) {
+	headers := make(map[string][]string)
+	for {
+		line, err := r.ReadLine()
+		if err != nil {
+			return headers, err
+		}
+		if string(line) == "" {
+			return headers, nil
+		}
+		h := strings.Split(string(line), ":")
+		headers[h[0]] = strings.Split(strings.TrimPrefix(h[1], " "), ",")
+	}
+}
