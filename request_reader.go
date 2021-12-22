@@ -2,7 +2,11 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
+	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -41,6 +45,32 @@ func (r *requestReader) ReadLine() ([]byte, error) {
 		}
 	}
 	return line, nil
+}
+
+func (r requestReader) ReadMessageBody(headers map[string][]string) (io.Reader, error) {
+	// TODO: Transfer-Encoding
+	contentLength, ok := headers[HeaderNameContentLength]
+	if !ok {
+		return nil, nil
+	}
+	_, err := strconv.Atoi(contentLength[0])
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(1)
+	body := []byte{}
+	for {
+		fmt.Println(2)
+		line, err := r.ReadLine()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return bytes.NewReader(body), nil
+			}
+			return nil, err
+		}
+		body = append(body, line...)
+	}
+	return nil, nil
 }
 
 func (r requestReader) ReadHeaders() (map[string][]string, error) {
